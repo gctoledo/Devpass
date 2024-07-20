@@ -7,3 +7,6 @@ build
 # Env
 .env
 .env.test
+
+# Db volume
+.postgres-data
