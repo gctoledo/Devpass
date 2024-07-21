@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CheckInUseCase } from './checkin'
 import { randomUUID } from 'crypto'
 import { InMemoryGymsRepository } from '@/repositories/in-memory/in-memory-gyms-repository'
+import { MaxDistanceError } from '@/errors/max-distance'
+import { MaxCheckInsError } from '@/errors/max-check-ins'
 
 describe('Check In Use Case', () => {
   beforeEach(() => {
@@ -56,7 +58,7 @@ describe('Check In Use Case', () => {
 
     const promise = sut.execute(createCheckInParams)
 
-    await expect(promise).rejects.toThrow()
+    await expect(promise).rejects.toBeInstanceOf(MaxCheckInsError)
   })
 
   it('should be able to check in different days', async () => {
@@ -92,6 +94,6 @@ describe('Check In Use Case', () => {
       userLongitude: -48.5582783,
     })
 
-    await expect(promise).rejects.toThrow()
+    await expect(promise).rejects.toBeInstanceOf(MaxDistanceError)
   })
 })
