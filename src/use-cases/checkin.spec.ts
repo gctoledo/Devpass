@@ -66,8 +66,6 @@ describe('Check In Use Case', () => {
 
     await gymsRepository.create(createGymParams)
 
-    console.log(await gymsRepository.findById(createCheckInParams.gymId))
-
     vi.setSystemTime(new Date(2022, 1, 20, 7, 0, 0))
 
     await sut.execute(createCheckInParams)
