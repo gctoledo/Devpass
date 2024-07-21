@@ -6,6 +6,28 @@ import { CheckInRepository } from '../interfaces/checkins-repositories'
 export class InMemoryCheckInRepository implements CheckInRepository {
   public checkIns: CheckIn[] = []
 
+  async save(checkIn: CheckIn) {
+    const checkInIndex = this.checkIns.findIndex(
+      (_checkIn) => _checkIn.id === checkIn.id,
+    )
+
+    if (checkInIndex >= 0) {
+      this.checkIns[checkInIndex] = checkIn
+    }
+
+    return checkIn
+  }
+
+  async findById(id: string) {
+    const checkIn = this.checkIns.find((checkIn) => checkIn.id === id)
+
+    if (!checkIn) {
+      return null
+    }
+
+    return checkIn
+  }
+
   async counterByUserId(userId: string) {
     const checkInsCount = this.checkIns.filter(
       (checkIn) => checkIn.user_id === userId,
