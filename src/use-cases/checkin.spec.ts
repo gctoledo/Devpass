@@ -1,9 +1,17 @@
 import { InMemoryCheckInRepository } from '@/repositories/in-memory/in-memory-checkins-repository'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CheckInUseCase } from './checkin'
 import { randomUUID } from 'crypto'
 
 describe('Check In Use Case', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   const makeSut = () => {
     const checkInsRepository = new InMemoryCheckInRepository()
     const sut = new CheckInUseCase(checkInsRepository)
@@ -22,5 +30,22 @@ describe('Check In Use Case', () => {
     const result = await sut.execute(params)
 
     expect(result.checkIn.gym_id).toEqual(params.gymId)
+  })
+
+  it('should not be able to check in twice in the same day', async () => {
+    const { sut } = makeSut()
+
+    vi.setSystemTime(new Date(2022, 1, 20, 7, 0, 0))
+
+    const params = {
+      gymId: randomUUID(),
+      userId: randomUUID(),
+    }
+
+    await sut.execute(params)
+
+    const promise = sut.execute(params)
+
+    await expect(promise).rejects.toThrow()
   })
 })
