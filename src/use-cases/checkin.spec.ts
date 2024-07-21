@@ -48,4 +48,23 @@ describe('Check In Use Case', () => {
 
     await expect(promise).rejects.toThrow()
   })
+
+  it('should be able to check in different days', async () => {
+    const { sut } = makeSut()
+
+    const params = {
+      gymId: randomUUID(),
+      userId: randomUUID(),
+    }
+
+    vi.setSystemTime(new Date(2022, 1, 20, 7, 0, 0))
+
+    await sut.execute(params)
+
+    vi.setSystemTime(new Date(2022, 1, 21, 7, 0, 0))
+
+    const checkIn = await sut.execute(params)
+
+    expect(checkIn.checkIn.gym_id).toEqual(params.gymId)
+  })
 })
