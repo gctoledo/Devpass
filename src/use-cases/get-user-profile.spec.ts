@@ -36,6 +36,6 @@ describe('Get User Profile Use Case', () => {
 
     const promise = sut.execute({ userId: 'wrong_id' })
 
-    expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError)
+    await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
 })
