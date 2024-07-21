@@ -10,10 +10,10 @@ export class InMemoryGymsRepository implements GymsRepository {
     const gym = {
       id: data.id ?? String(randomUUID()),
       title: data.title,
-      latitude: new Decimal(Number(data.latitude)),
-      longitude: new Decimal(Number(data.longitude)),
-      description: null,
-      phone: null,
+      description: data.description ?? null,
+      phone: data.phone ?? null,
+      latitude: new Decimal(data.latitude.toString()),
+      longitude: new Decimal(data.longitude.toString()),
     }
 
     this.gyms.push(gym)
