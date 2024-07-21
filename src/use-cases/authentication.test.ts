@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
-import { AuthenticateUseCase } from './authentication'
+import { AuthenticationUseCase } from './authentication'
 import { hash } from 'bcryptjs'
 import { InvalidCredentialsError } from '@/errors/invalid-credentials'
 
 describe('Authentication Use Case', () => {
   const makeSut = () => {
     const usersRepository = new InMemoryUsersRepository()
-    const sut = new AuthenticateUseCase(usersRepository)
+    const sut = new AuthenticationUseCase(usersRepository)
 
     return { sut, usersRepository }
   }
