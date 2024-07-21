@@ -1,6 +1,7 @@
 import { InMemoryCheckInRepository } from '@/repositories/in-memory/in-memory-checkins-repository'
 import { describe, expect, it } from 'vitest'
 import { ValidateCheckInUseCase } from './validate-checkin'
+import { ResourceNotFoundError } from '@/errors/resource-not-found'
 
 describe('Validate CheckIn Use Case', () => {
   // beforeEach(() => {
@@ -32,5 +33,13 @@ describe('Validate CheckIn Use Case', () => {
     expect(checkInsRepository.checkIns[0].validated_at).toEqual(
       expect.any(Date),
     )
+  })
+
+  it('should not be able to validate check-in', async () => {
+    const { sut } = makeSut()
+
+    const promise = sut.execute({ checkInId: 'fake-id' })
+
+    await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
 })
