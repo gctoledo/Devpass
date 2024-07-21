@@ -1,5 +1,6 @@
 import { expect, describe, it } from 'vitest'
 import { RegisterUseCase } from './register'
+import { compare } from 'bcryptjs'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
 
 describe('Register Use Case', () => {
@@ -20,5 +21,19 @@ describe('Register Use Case', () => {
     })
 
     expect(user.name).toEqual('John Doe')
+  })
+
+  it('should hash user password before creating it', async () => {
+    const { sut } = makeSut()
+
+    const { user } = await sut.execute({
+      email: 'john@doe',
+      name: 'John Doe',
+      password: 'password',
+    })
+
+    const passwordHasBeenHashed = await compare('password', user.password)
+
+    expect(passwordHasBeenHashed).toBe(true)
   })
 })
