@@ -2,6 +2,7 @@ import { InMemoryCheckInRepository } from '@/repositories/in-memory/in-memory-ch
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CheckInUseCase } from './checkin'
 import { randomUUID } from 'crypto'
+import { InMemoryGymsRepository } from '@/repositories/in-memory/in-memory-gyms-repository'
 
 describe('Check In Use Case', () => {
   beforeEach(() => {
@@ -14,57 +15,83 @@ describe('Check In Use Case', () => {
 
   const makeSut = () => {
     const checkInsRepository = new InMemoryCheckInRepository()
-    const sut = new CheckInUseCase(checkInsRepository)
+    const gymsRepository = new InMemoryGymsRepository()
+    const sut = new CheckInUseCase(checkInsRepository, gymsRepository)
 
-    return { sut, checkInsRepository }
+    return { sut, checkInsRepository, gymsRepository }
+  }
+
+  const createCheckInParams = {
+    gymId: randomUUID(),
+    userId: randomUUID(),
+    userLatitude: 0,
+    userLongitude: 0,
+  }
+
+  const createGymParams = {
+    id: createCheckInParams.gymId,
+    latitude: 0,
+    longitude: 0,
+    title: 'Example Gym',
   }
 
   it('should be able to check in', async () => {
-    const { sut } = makeSut()
+    const { sut, gymsRepository } = makeSut()
 
-    const params = {
-      gymId: randomUUID(),
-      userId: randomUUID(),
-    }
+    await gymsRepository.create(createGymParams)
 
-    const result = await sut.execute(params)
+    const result = await sut.execute(createCheckInParams)
 
-    expect(result.checkIn.gym_id).toEqual(params.gymId)
+    expect(result.checkIn.gym_id).toEqual(createCheckInParams.gymId)
   })
 
   it('should not be able to check in twice in the same day', async () => {
-    const { sut } = makeSut()
+    const { sut, gymsRepository } = makeSut()
 
     vi.setSystemTime(new Date(2022, 1, 20, 7, 0, 0))
 
-    const params = {
-      gymId: randomUUID(),
-      userId: randomUUID(),
-    }
+    await gymsRepository.create(createGymParams)
 
-    await sut.execute(params)
+    await sut.execute(createCheckInParams)
 
-    const promise = sut.execute(params)
+    const promise = sut.execute(createCheckInParams)
 
     await expect(promise).rejects.toThrow()
   })
 
   it('should be able to check in different days', async () => {
-    const { sut } = makeSut()
+    const { sut, gymsRepository } = makeSut()
 
-    const params = {
-      gymId: randomUUID(),
-      userId: randomUUID(),
-    }
+    await gymsRepository.create(createGymParams)
+
+    console.log(await gymsRepository.findById(createCheckInParams.gymId))
 
     vi.setSystemTime(new Date(2022, 1, 20, 7, 0, 0))
 
-    await sut.execute(params)
+    await sut.execute(createCheckInParams)
 
     vi.setSystemTime(new Date(2022, 1, 21, 7, 0, 0))
 
-    const checkIn = await sut.execute(params)
+    const checkIn = await sut.execute(createCheckInParams)
 
-    expect(checkIn.checkIn.gym_id).toEqual(params.gymId)
+    expect(checkIn.checkIn.gym_id).toEqual(createCheckInParams.gymId)
+  })
+
+  it('should not be able to check in on distant gym', async () => {
+    const { sut, gymsRepository } = makeSut()
+
+    await gymsRepository.create({
+      ...createGymParams,
+      latitude: -20.5684736,
+      longitude: -48.5720064,
+    })
+
+    const promise = sut.execute({
+      ...createCheckInParams,
+      userLatitude: -20.5039819,
+      userLongitude: -48.5582783,
+    })
+
+    await expect(promise).rejects.toThrow()
   })
 })
