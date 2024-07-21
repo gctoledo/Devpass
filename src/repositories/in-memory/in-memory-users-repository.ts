@@ -1,8 +1,18 @@
-import { UsersRepository } from '@/interfaces/repositores'
+import { UsersRepository } from '@/repositories/interfaces/users-repositories'
 import { User, Prisma } from '@prisma/client'
 
 export class InMemoryUsersRepository implements UsersRepository {
   public users: User[] = []
+
+  async findById(userId: string): Promise<User | null> {
+    const user = this.users.find((user) => user.id === userId)
+
+    if (!user) {
+      return null
+    }
+
+    return user
+  }
 
   async findByEmail(email: string) {
     const user = this.users.find((user) => user.email === email)
