@@ -1,5 +1,5 @@
 import { EmailAlreadyExistsError } from '@/errors/email-already-exists'
-import { UsersRepository } from '@/interfaces/repositores'
+import { UsersRepository } from '@/repositories/interfaces/users-repositories'
 import { User } from '@prisma/client'
 import { hash } from 'bcryptjs'
 
