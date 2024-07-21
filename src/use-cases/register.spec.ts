@@ -2,6 +2,7 @@ import { expect, describe, it } from 'vitest'
 import { RegisterUseCase } from './register'
 import { compare } from 'bcryptjs'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
+import { EmailAlreadyExistsError } from '@/errors/email-already-exists'
 
 describe('Register Use Case', () => {
   const makeSut = () => {
@@ -35,5 +36,25 @@ describe('Register Use Case', () => {
     const passwordHasBeenHashed = await compare('password', user.password)
 
     expect(passwordHasBeenHashed).toBe(true)
+  })
+
+  it('should not be able to register with email that already exists', async () => {
+    const { sut, usersRepository } = makeSut()
+
+    const email = 'john@doe.com'
+
+    await usersRepository.create({
+      name: 'John Doe',
+      email,
+      password: 'password',
+    })
+
+    const promise = sut.execute({
+      name: 'John Doe',
+      email,
+      password: 'password',
+    })
+
+    await expect(promise).rejects.toBeInstanceOf(EmailAlreadyExistsError)
   })
 })

@@ -10,3 +10,6 @@ build
 
 # Db volume
 .postgres-data
+
+# Test coverage
+coverage
