@@ -6,6 +6,7 @@ export default defineConfig({
     coverage: {
       include: ['src/**/*.ts'],
     },
+    environmentMatchGlobs: [['src/http/controllers/**', 'prisma']],
   },
   plugins: [tsconfigPaths()],
 })
