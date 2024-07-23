@@ -26,4 +26,17 @@ describe('Profile Controller', () => {
       }),
     )
   })
+
+  it('should not be able to get user profile if token is invalid', async () => {
+    const response = await request(app.server)
+      .get('/me')
+      .set('Authorization', `Bearer 'invalid-token'`)
+
+    expect(response.statusCode).toEqual(401)
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        message: 'Unauthorized',
+      }),
+    )
+  })
 })
